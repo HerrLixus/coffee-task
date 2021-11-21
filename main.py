@@ -1,9 +1,11 @@
 import sys
 import sqlite3
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets
+from UI.main import Ui_MainWindow
+from UI.addEditCoffeeForm import Ui_Form
 
 
-class MainWindow(QtWidgets.QMainWindow):
+class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.data = None
@@ -13,11 +15,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.table.itemDoubleClicked.connect(self.init_record_edit)
 
     def initUi(self):
-        uic.loadUi('main.ui', self)
+        self.setupUi(self)
         self.update_data()
 
     def get_data(self):
-        connection = sqlite3.connect('coffee.sqlite')
+        connection = sqlite3.connect('data/coffee.sqlite')
         cursor = connection.cursor()
         data = cursor.execute("""select * from coffee""").fetchall()
         connection.close()
@@ -52,7 +54,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.table.setColumnWidth(i, self.width() // 6)
 
 
-class AddEditCoffeeForm(QtWidgets.QWidget):
+class AddEditCoffeeForm(QtWidgets.QWidget, Ui_Form):
     def __init__(self, parent_form):
         super(AddEditCoffeeForm, self).__init__()
         self.parent_form = parent_form
@@ -60,7 +62,7 @@ class AddEditCoffeeForm(QtWidgets.QWidget):
         self.initUi()
 
     def initUi(self):
-        uic.loadUi('addEditCoffeeForm.ui', self)
+        self.setupUi(self)
         self.roasting_input.addItems(['слабая', "средняя", "сильная"])
         self.grain_input.addItems(["молотый", "в зёрнах"])
 
@@ -104,7 +106,7 @@ class AddCoffeeForm(AddEditCoffeeForm):
 
     def save_data(self):
         if self.approve_record():
-            connection = sqlite3.connect('coffee.sqlite')
+            connection = sqlite3.connect('data/coffee.sqlite')
             cursor = connection.cursor()
             cursor.execute("""insert into
             coffee(sort, roasting, grains, description, price, volume)
@@ -140,7 +142,7 @@ class EditCoffeeForm(AddEditCoffeeForm):
 
     def save_data(self):
         if self.approve_record():
-            connection = sqlite3.connect('coffee.sqlite')
+            connection = sqlite3.connect('data/coffee.sqlite')
             cursor = connection.cursor()
             cursor.execute("""update coffee 
                               set sort = ?,
